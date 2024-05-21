@@ -6,3 +6,4 @@ int SC_ICOUNTER;
 unsigned char SC_TCOUNTER;
 int SC_FLAGS;
 int SC_IGNORE_CACHE;
+int SC_REG_DELAY;

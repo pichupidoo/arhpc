@@ -1,60 +1,40 @@
 #include "console.h"
-#include <mySimpleComputer.h>
-#include <signal.h>
-#include <unistd.h>
+
 void
 IRC (int signum)
 {
-  if (signum == SIGUSR1)
+  int delay_value;
+  int value;
+  switch (signum)
     {
-      sc_memoryInit ();
-      sc_regInit ();
-      sc_accumulatorInit ();
-      sc_icounterSet (0);
-      sc_regSet (SC_THROTTLE, 1);
-    }
-  if (signum == SIGALRM)
-    {
-      int flag;
-      sc_regGet (SC_THROTTLE, &flag);
-      unsigned char tcounter;
-      sc_tcounterGet (&tcounter);
-      if (tcounter)
-        {
-          sc_tcounterSet (--tcounter);
-          sc_setIgnoreCache (1);
-          print_all_mem_cells_def ();
-          printBigCell ();
-          printAccumulator ();
-          printFlags ();
-          printCounters ();
-          printCommand ();
-          printCache ();
-          sc_setIgnoreCache (0);
-          mt_gotoXY (27, 1);
-          if (!tcounter)
-            {
-              sc_regSet (SC_THROTTLE, 0);
-              flag = 0;
-            }
-          else
-            {
-              sc_regSet (SC_THROTTLE, 1);
-              return;
-            }
-        }
-      if (flag)
-        return;
-      CU ();
-      sc_setIgnoreCache (1);
-      print_all_mem_cells_def ();
-      printBigCell ();
-      printAccumulator ();
+    case SIGALRM: // CLK
       printFlags ();
       printCounters ();
-      printCommand ();
-      printCache ();
-      sc_setIgnoreCache (0);
-      mt_gotoXY (27, 1);
+      sc_delayGet (&delay_value);
+      if (sc_regGet (SC_INVALID_COMMAND, &value) || value)
+        {
+          alarm (0);
+          return;
+        }
+
+      if (!delay_value)
+        {
+        case 900:
+          CU ();
+          printCache ();
+        }
+      else
+        sc_delaySet (delay_value - 1);
+      printFlags ();
+      printCounters ();
+      break;
+
+    case SIGUSR1: // RST
+      sc_accumulatorInit ();
+      sc_icounterInit ();
+      sc_memoryInit ();
+      sc_regInit ();
+      alarm (0);
+      break;
     }
 }

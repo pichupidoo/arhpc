@@ -1,71 +1,130 @@
+
 #include <myReadKey.h>
+#include <mySimpleComputer.h>
 #include <myTerm.h>
-#include <stdlib.h>
-int
-rk_readvalue (int *value, int timeout)
+
+static int
+_clamp (int d, int min, int max)
 {
-  rk_mytermregime (0, timeout, 0, 0, 0);
-  char buf[16] = "";
-  int is_completed = 0;
-  int n_symbol = 0;
-  while (!is_completed)
+  const int t = d < min ? min : d;
+  return t > max ? max : t;
+}
+
+char *move5left = "\e[5D";
+char *scpos = "\e[s";
+char *rcpos = "\e[u";
+
+int
+rk_readvalue (int *value, int timeout, long *big,
+              void (*printBig) (long *, char *, int), void (*pdc) (int))
+{
+  // In-place value editor
+  // ESC - exit without saving value
+  // ENTER - save valid value
+  // Allowed inputs : PLUS MINUS ESC ENTER 0-9 A-Z L R
+
+  // Assumption: SC console places the cursor in the first character of the
+  // selected command.
+
+  char val[6] = { '+', '0', '0', '0', '0', '\0' };
+  int cmd;
+
+  int pos = 0; // From 0 to 3
+  int valerr = 0;
+  int fin = 0;
+  // Set terminal to noncanonical mode.
+  // Wait for no character, do not echo or sigint
+  rk_mytermregime (RK_MODE_NONCANONICAL, timeout, 0, 0, 1);
+
+  // Input loop. Break on ESC/ENTER
+  while (!fin)
     {
-      enum keys key = key_UNDEFINED;
-      if (rk_readkey (&key))
-        return -1;
-      if (key == key_ESC)
-        return -1;
-      if (n_symbol == 0)
+      // Print temporary command with cursor
+      for (int i = 0; i < 5; i++)
         {
-          if (key == key_plus)
+          if (i == (pos + 1))
             {
-              buf[0] = '+';
-              mt_print ("+");
-              n_symbol++;
+              mt_setfgcolor (BLACK);
+              mt_setbgcolor (WHITE);
+              write (STDOUT_FILENO, val + i, 1);
+              mt_setdefaultcolor ();
             }
-          else if (key == key_minus)
+          else
             {
-              buf[0] = '-';
-              mt_print ("-");
-              n_symbol++;
+              if (valerr)
+                mt_setbgcolor (RED);
+              else
+                mt_setdefaultcolor ();
+
+              write (STDOUT_FILENO, val + i, 1);
             }
         }
-      else
+      write (STDOUT_FILENO, move5left, 4);
+      write (STDOUT_FILENO, scpos, 3);
+      if (printBig)
         {
+          if (valerr)
+            printBig (big, val, -6);
+          else
+            printBig (big, val, pos + 1);
+        }
+      int tval = (int)strtol (val + 1, 0, 16);
+      if (pdc)
+        pdc ((tval & 127) + (((tval >> 8) & 127) << 7)
+             + ((val[0] == '-') << 14));
+
+      write (STDOUT_FILENO, rcpos, 3);
+      valerr = 0;
+      enum keys key;
+      rk_readkey (&key);
+      switch (key)
+        {
+        case key_RIGHT:
+          pos = _clamp (++pos, 0, 3);
+          break;
+        case key_LEFT:
+          pos = _clamp (--pos, 0, 3);
+          break;
+        case key_plus:
+          val[0] = '+';
+          break;
+        case key_minus:
+          val[0] = '-';
+          break;
+        case key_BACKSPACE:
+          val[pos + 1] = '0';
+          pos = _clamp (--pos, 0, 3);
+          break;
+        case key_ENTER:
+          cmd = (int)strtol (val + 1, 0, 16);
+          int opc = cmd >> 8;
+          int cval = cmd & 0xff;
+          if (opc > 0x7f || (val[0] == '+' && cval > 0x7f)
+              || (val[0] == '-' && cval > 0x80))
+            { // Values OK
+              valerr = 1;
+              break;
+            }
+          if (val[0] == '+')
+            *value = 0 + cval + (opc << 7);
+          else
+            *value = 0 + cval + (opc << 7) + (1 << 14);
+          fin++;
+          break;
+        default:
+          // KEY_0 = 1
           if (key >= key_0 && key <= key_9)
             {
-              buf[n_symbol] = key - key_0 + '0';
-              mt_print ("%c", key - key_0 + '0');
-              n_symbol++;
+              val[pos + 1] = 47 + key;
+              pos = _clamp (++pos, 0, 3);
             }
-          else if (key >= key_A && key <= key_F)
+          if (key >= key_A && key <= key_F)
             {
-              buf[n_symbol] = key - key_A + 'A';
-              mt_print ("%c", key - key_A + 'A');
-              n_symbol++;
+              val[pos + 1] = 54 + key;
+              pos = _clamp (++pos, 0, 3);
             }
+          break;
         }
-      key = key_UNDEFINED;
-      if (n_symbol == 5)
-        is_completed++;
     }
-  buf[5] = '\0';
-  int sign = buf[0] == '+' ? 0 : 1;
-  int right_value = strtol (&buf[3], NULL, 16);
-  buf[3] = '\0';
-  int left_value = strtol (&buf[1], NULL, 16);
-  if (sign && right_value > 127 && left_value > 126)
-    {
-      *value = 0b100000000000000;
-      return 0;
-    }
-  right_value = right_value > 127 ? 127 : right_value;
-  left_value = left_value > 127 ? 127 << 7 : left_value << 7;
-  *value = 0;
-  *value |= (sign << 14) | right_value | left_value;
-  if (sign)
-    *value = ((~(*value - 1) & 0x3FFF) | (sign << 14));
-  if (sign && !right_value && !left_value)
-    *value = 0;
-  return 0;
+  return *value;
 }

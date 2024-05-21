@@ -34,3 +34,6 @@ int sc_tcounterGet (unsigned char *value);
 int sc_tcounterInit (void);
 int sc_cachelineGet (int line_number, int *cacheline);
 int sc_setIgnoreCache (int value);
+int sc_delayInit (void);
+int sc_delaySet (int value);
+int sc_delayGet (int *value);
