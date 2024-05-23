@@ -1,10 +1,9 @@
-#include <string.h>
-#include <unistd.h>
+#include <myTerm.h>
 int
 mt_delline (void)
 {
-  const char *esc = "\E[M";
-  if (write (STDOUT_FILENO, esc, strlen (esc)) == -1)
-    return -1;
+  char s[40] = { 0 };
+  int len = snprintf (s, 39, "\33[2K\r");
+  write (STDOUT_FILENO, s, len);
   return 0;
 }

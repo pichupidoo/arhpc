@@ -1,37 +1,36 @@
 #include "console.h"
-#include <myBigChars.h>
-#include <mySimpleComputer.h>
 void
-printBigCell (void)
+printBigCell (long *big, char *str, int index)
 {
-  int value;
-  sc_memoryGet (cell, &value);
-  if (value >> 14)
+  if (str[0] == '+')
+    bc_printbigchar ((int *)(big + 16), 65, 9, 0, 0);
+  if (str[0] == '-')
+    bc_printbigchar ((int *)(big + 17), 65, 9, 0, 0);
+  enum colors fg, bg;
+  for (int i = 0; i < 4; i++)
     {
-      bc_printbigchar (&big[34], 9, 64, DEFAULT, DEFAULT);
-      value = ((~value & 0x3FFF) + 1) | 0x4000;
+      if (index == i + 1)
+        {
+          fg = BLACK;
+          bg = WHITE;
+        }
+      else if (index == -6)
+        {
+          bg = RED;
+        }
+      else
+        {
+          fg = 0;
+          bg = 0;
+        }
+      if (str[1 + i] >= '0' && str[1 + i] <= '9')
+        bc_printbigchar ((int *)(big + str[1 + i] - '0'), 73 + 8 * i, 9, fg,
+                         bg);
+      if (str[1 + i] >= 'A' && str[1 + i] <= 'F')
+        bc_printbigchar ((int *)(big + str[1 + i] + 10 - 'A'), 73 + 8 * i, 9,
+                         fg, bg);
+      if (str[1 + i] >= 'a' && str[1 + i] <= 'f')
+        bc_printbigchar ((int *)(big + str[1 + i] + 10 - 'a'), 73 + 8 * i, 9,
+                         fg, bg);
     }
-  else
-    bc_printbigchar (&big[32], 9, 64, DEFAULT, DEFAULT);
-  if ((value >> 14) && ((value & 0x3FFF) == 0))
-    {
-      bc_printbigchar (&big[14], 9, 72, DEFAULT, DEFAULT);
-      bc_printbigchar (&big[30], 9, 80, DEFAULT, DEFAULT);
-      bc_printbigchar (&big[16], 9, 88, DEFAULT, DEFAULT);
-      bc_printbigchar (&big[0], 9, 96, DEFAULT, DEFAULT);
-    }
-  else
-    {
-      bc_printbigchar (&big[((value >> 11) & 0b111) * 2], 9, 72, DEFAULT,
-                       DEFAULT);
-      bc_printbigchar (&big[((value >> 7) & 0b1111) * 2], 9, 80, DEFAULT,
-                       DEFAULT);
-      bc_printbigchar (&big[((value >> 4) & 0b111) * 2], 9, 88, DEFAULT,
-                       DEFAULT);
-      bc_printbigchar (&big[(value & 0b1111) * 2], 9, 96, DEFAULT, DEFAULT);
-    }
-  mt_gotoXY (17, 64);
-  mt_setfgcolor (BLUE);
-  mt_print ("Номер редактируемой ячейки: %03d", cell);
-  mt_setfgcolor (DEFAULT);
 }

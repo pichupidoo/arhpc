@@ -1,35 +1,55 @@
-#include "mySimpleComputer.h"
-#include "myTerm.h"
-#include <stdio.h>
+#include "console.h"
+
 void
-printCache (void)
+printCache ()
 {
-  int cacheline[10];
-  int line_size;
-  int address;
-  for (int line = 0; line < 5; line++)
+  for (int i = 0; i < 5; i++)
     {
-      address = sc_cachelineGet (line, cacheline);
-      if (address != -1)
+      char clear[16];
+      int clear_length = snprintf (clear, 16, "\t");
+      mt_gotoXY (20 + i, 2);
+      write (1, clear, clear_length);
+
+      if (SC_CACHE[i].start_address != -1)
         {
-          line_size = address == 120 ? 8 : 10;
-          mt_gotoXY (20 + line, 2);
-          mt_print ("%d: "
-                    " ",
-                    address);
-          for (int i = 0; i < line_size; i++)
+          int stop = 0;
+          ((SC_CACHE[i].start_address + 10) < SC_MEMARR_SIZE) ? (stop = 10)
+                                                              : (stop = 8);
+          int length;
+          char address_print[6];
+          if (SC_CACHE[i].start_address == -1)
+            length = snprintf (address_print, 4, "-1:");
+          else
+            length = snprintf (address_print, 4,
+                               "%02x:", SC_CACHE[i].start_address);
+          mt_gotoXY (20 + i, 2);
+          write (1, address_print, 6);
+
+          for (int j = 0; j < stop; j++)
             {
-              mt_gotoXY (20 + line, i * 6 + 7);
-              if (cacheline[i] >> 14)
-                {
-                  mt_print ("-");
-                  cacheline[i] = (~cacheline[i] & 0x3FFF) + 1;
-                }
-              else
-                mt_print ("+");
-              mt_print ("%02X", cacheline[i] >> 7 & 0b1111111);
-              mt_print ("%02X", cacheline[i] & 0b1111111);
+              int sign = 0;
+              int command = 0;
+              int operand = 0;
+              sc_commandDecode (SC_CACHE[i].str[j], &sign, &command, &operand);
+
+              char string[6];
+              length = snprintf (string, 6, "%c%.2x%.2x", (sign) ? '-' : '+',
+                                 command, operand);
+
+              int y = 7 * (j + 1) - j - 2;
+              int x = 20 + i;
+              mt_gotoXY (x, y);
+              write (1, string, length);
             }
         }
+      else
+        {
+          char empty[5] = "-1:\0";
+          mt_gotoXY (20 + i, 2);
+          write (1, empty, 5);
+        }
     }
+
+  mt_setdefaultcolor ();
+  mt_gotoXY (26, 1);
 }

@@ -1,0 +1,9 @@
+.vscode
+obj
+sc
+sc.exe
+*.o
+mem.bin
+generate-font
+font.bin
+simplebasic/nt.cpp

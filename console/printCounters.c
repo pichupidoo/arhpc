@@ -1,39 +1,17 @@
-#include <mySimpleComputer.h>
-#include <myTerm.h>
-#include <stdio.h>
+#include "console.h"
 void
 printCounters (void)
 {
-  int IC;
-  unsigned char TC;
-  if (sc_icounterGet (&IC))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  if (sc_tcounterGet (&TC))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  mt_gotoXY (5, 63);
-  mt_print ("T: %02d IC: ", TC);
-  mt_gotoXY (5, 77);
-  if (IC >> 14)
-    {
-      if (IC & 0x3FFF)
-        {
-          mt_print ("-");
-          IC = (~IC & 0x3FFF) + 1;
-        }
-      else
-        {
-          mt_print ("-7F80");
-          return;
-        }
-    }
-  else
-    mt_print ("+");
-  mt_print ("%02X", IC >> 7 & 0b1111111);
-  mt_print ("%02X", IC & 0b1111111);
+  int value;
+  mt_gotoXY (5, 65);
+  sc_icounterGet (&value);
+  char buf[40];
+  int delay;
+  sc_delayGet (&delay);
+  int len = snprintf (buf, 40, "T: %02d \tIC: ", delay);
+  write (STDOUT_FILENO, buf, len);
+  printDecodedCommand (value);
+  int mg_value;
+  sc_memoryGet (value, &mg_value);
+  printDecodedCommandBlock (mg_value);
 }

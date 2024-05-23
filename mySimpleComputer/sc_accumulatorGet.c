@@ -1,10 +1,11 @@
 #include "sc_variables.h"
-#include <stdio.h>
+#include <mySimpleComputer.h>
+
 int
 sc_accumulatorGet (int *value)
 {
-  if (value == NULL)
+  if (!value)
     return -1;
-  *value = SC_ACCUMULATOR;
+  *value = SC_REG_ACC;
   return 0;
 }

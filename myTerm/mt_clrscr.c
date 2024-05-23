@@ -1,11 +1,9 @@
-#include <string.h>
-#include <unistd.h>
+#include <myTerm.h>
 int
 mt_clrscr (void)
 {
-  const char *str = "\E[H\E[2J\E[0;0H";
-  ssize_t bytes_written = write (STDOUT_FILENO, str, strlen (str));
-  if (bytes_written == -1)
-    return -1;
+  char s[40] = { 0 };
+  int len = snprintf (s, 39, "\33[2J\r");
+  write (STDOUT_FILENO, s, len);
   return 0;
 }

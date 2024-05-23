@@ -1,20 +1,24 @@
 #include "sc_variables.h"
 #include <mySimpleComputer.h>
-#include <stdio.h>
+
+/**
+ * @brief Get a value in memory by address.
+ *
+ * @param address - address in memory
+ * @param value - pointer to a result variable
+ *
+ * @retval 0 - success
+ * @retval -1 - out of memory bounds/invalid value pointer
+ */
 int
 sc_memoryGet (int address, int *value)
 {
-  if (address < 0 || address >= SC_MEMARR_SIZE || value == NULL)
+  // Outside of address space
+  if (address < 0 && address >= SC_MEMARR_SIZE)
     return -1;
-  if (SC_IGNORE_CACHE)
-    {
-      *value = SC_MEMARR[address];
-      return 0;
-    }
-  /*if (sc_cacheGet(address, value))
-  {
-    sc_cacheSet(address, *value);
-    return -2;
-  }*/
+  // Value is too big
+  if (!value)
+    return -1;
+  *value = SC_MEMARR[address];
   return 0;
 }

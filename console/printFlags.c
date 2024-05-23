@@ -1,58 +1,20 @@
-#include <mySimpleComputer.h>
-#include <myTerm.h>
-#include <stdio.h>
+#include "console.h"
+
 void
 printFlags (void)
 {
-  int P, ZERO, M, T, E;
-  if (sc_regGet (SC_OVERFLOW, &P))
+  mt_gotoXY (2, 91);
+  int flags[5] = { 'E', 'T', 'M', '0', 'P' };
+  char buf[40] = { 0 };
+  int len = 0;
+  for (int i = 4; i >= 0; i--)
     {
-      mt_print ("Error!\n");
-      return;
+      int value = 0;
+      sc_regGet (1 << i, &value);
+      if (value)
+        len += snprintf (buf + 8 - 2 * i, 3, "%c ", flags[i]);
+      else
+        len += snprintf (buf + 8 - 2 * i, 3, "_ ");
     }
-  if (sc_regGet (SC_DIVIDING_BY_ZERO, &ZERO))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  if (sc_regGet (SC_OUT_OF_MEMORY, &M))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  if (sc_regGet (SC_THROTTLE, &T))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  if (sc_regGet (SC_INVALID_COMMAND, &E))
-    {
-      mt_print ("Error!\n");
-      return;
-    }
-  mt_gotoXY (2, 90);
-  if (P == 0)
-    mt_print ("_ ");
-  else
-    mt_print ("P ");
-  mt_gotoXY (2, 93);
-  if (ZERO == 0)
-    mt_print ("_ ");
-  else
-    mt_print ("0 ");
-  mt_gotoXY (2, 96);
-  if (M == 0)
-    mt_print ("_ ");
-  else
-    mt_print ("M ");
-  mt_gotoXY (2, 99);
-  if (T == 0)
-    mt_print ("_ ");
-  else
-    mt_print ("T ");
-  mt_gotoXY (2, 102);
-  if (E == 0)
-    mt_print ("_ ");
-  else
-    mt_print ("E ");
+  write (STDOUT_FILENO, buf, len);
 }

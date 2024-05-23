@@ -1,22 +1,22 @@
 #pragma once
+#include <stdio.h>
+#include <unistd.h>
 enum colors
 {
-  BLACK,
+  BLACK = 30,
   RED,
   GREEN,
   YELLOW,
   BLUE,
-  PURPLE,
+  MAGENTA,
   CYAN,
   WHITE,
-  DEFAULT
 };
 int mt_clrscr (void);
-int mt_delline (void);
+int mt_gotoXY (int row, int col);
 int mt_getscreensize (int *rows, int *cols);
-int mt_gotoXY (int x, int y);
-int mt_setbgcolor (enum colors color);
-int mt_setcursorvisible (int value);
+int mt_setfgcolor (enum colors);
+int mt_setbgcolor (enum colors);
 int mt_setdefaultcolor (void);
-int mt_setfgcolor (enum colors color);
-int mt_print (char *format, ...);
+int mt_setcursorvisible (int value);
+int mt_delline (void);

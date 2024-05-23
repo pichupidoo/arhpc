@@ -1,24 +1,13 @@
-#include <string.h>
-#include <unistd.h>
+#include <myTerm.h>
 int
 mt_setcursorvisible (int value)
 {
-  ssize_t bytes_written;
-  char *esc;
-  switch (value)
-    {
-    case 0:
-      esc = "\E[?25l";
-      bytes_written = write (STDOUT_FILENO, esc, strlen (esc));
-      break;
-    case 1:
-      esc = "\E[?12;25h";
-      bytes_written = write (STDOUT_FILENO, esc, strlen (esc));
-      break;
-    }
-  if (bytes_written == -1)
-    {
-      return -1;
-    }
+  char s[40] = { 0 };
+  int len;
+  if (value)
+    len = snprintf (s, 40, "\33[?25h\r");
+  else
+    len = snprintf (s, 40, "\33[?25l\r");
+  write (STDOUT_FILENO, s, len);
   return 0;
 }

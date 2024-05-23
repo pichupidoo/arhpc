@@ -1,10 +1,8 @@
-#include <string.h>
-#include <unistd.h>
+#include <myTerm.h>
 int
 mt_setdefaultcolor (void)
 {
-  const char *esc = "\E[0m";
-  if (write (STDOUT_FILENO, esc, strlen (esc)) == -1)
-    return -1;
+  mt_setfgcolor (0); // "0" - reset
+  mt_setbgcolor (0);
   return 0;
 }

@@ -1,20 +1,11 @@
-#include "mySimpleComputer.h"
-#include <stdio.h>
+#include "sc_variables.h"
+#include <mySimpleComputer.h>
+
 int
 sc_commandEncode (int sign, int command, int operand, int *value)
 {
-  if (sign != 0 && sign != 1)
+  if (sign >> 1 || command < 0 || command > 76 || operand >> 7 || !value)
     return -1;
-  if (sc_commandValidate (command))
-    return -1;
-  if (operand < 0 || operand > 127)
-    return -1;
-  if (value == NULL)
-    return -1;
-  sign <<= 14;
-  command <<= 7;
-  *value = operand;
-  *value |= command;
-  *value |= sign;
+  *value = operand + (command << 7) + (sign << 14);
   return 0;
 }

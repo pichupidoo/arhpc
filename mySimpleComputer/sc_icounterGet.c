@@ -1,10 +1,11 @@
 #include "sc_variables.h"
-#include <stdio.h>
+#include <mySimpleComputer.h>
+
 int
 sc_icounterGet (int *value)
 {
-  if (value == NULL)
+  if (!value)
     return -1;
-  *value = SC_ICOUNTER;
+  *value = SC_REG_IC;
   return 0;
 }

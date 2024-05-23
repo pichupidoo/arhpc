@@ -1,7 +1,9 @@
 #include "sc_variables.h"
+#include <mySimpleComputer.h>
+
 int
 sc_icounterInit (void)
 {
-  SC_ICOUNTER = 0;
+  SC_REG_IC = 0;
   return 0;
 }

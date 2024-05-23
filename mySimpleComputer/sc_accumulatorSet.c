@@ -1,9 +1,11 @@
 #include "sc_variables.h"
+#include <mySimpleComputer.h>
+
 int
 sc_accumulatorSet (int value)
 {
-  if (value < 0 || value > 32767)
+  if (value >> 15)
     return -1;
-  SC_ACCUMULATOR = value;
+  SC_REG_ACC = value;
   return 0;
 }

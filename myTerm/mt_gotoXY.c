@@ -1,29 +1,9 @@
-#include "mt_itoa.h"
-#include <string.h>
-#include <unistd.h>
+#include <myTerm.h>
 int
-mt_gotoXY (int x, int y)
+mt_gotoXY (int row, int col)
 {
-  char buf[32];
-  char *ptr = buf;
-  const char *esc = "\033[";
-  const char *sep = ";";
-  const char *end = "H";
-  strcpy (ptr, esc);
-  ptr += strlen (esc);
-  char x_str[16];
-  mt_itoa (x, x_str);
-  strcpy (ptr, x_str);
-  ptr += strlen (x_str);
-  *ptr++ = sep[0];
-  char y_str[16];
-  mt_itoa (y, y_str);
-  strcpy (ptr, y_str);
-  ptr += strlen (y_str);
-  *ptr++ = end[0];
-  if (write (STDOUT_FILENO, buf, ptr - buf) == -1)
-    {
-      return -1;
-    }
+  char s[40] = { 0 };
+  int len = snprintf (s, 39, "\33[%d;%dH", row, col);
+  write (STDOUT_FILENO, s, len);
   return 0;
 }

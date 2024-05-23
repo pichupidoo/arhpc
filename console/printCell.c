@@ -1,36 +1,22 @@
-#include "mySimpleComputer.h"
-#include "myTerm.h"
-#include <stdio.h>
+#include "console.h"
+
 void
 printCell (int address, enum colors fg, enum colors bg)
 {
-  int value;
-  if (sc_memoryGet (address, &value) == -1)
-    return;
-  mt_setbgcolor (bg);
+  // Home at (1;1), 10 cells per line
+  // address = 0 1 2 3 4 5 6 7 8 9 nl
+  // +ffff +ffff
+  // row = address div 10
+  // col = adress mod 10
+  int row = (address / 10) + 2;
+  int col = (address % 10) * 6 + 2; // +ffff_ is 6 chars long
+
   mt_setfgcolor (fg);
-  int row = 1, col = 0;
-  col = address % 10;
-  int tmp_address = address;
-  while (tmp_address > 9)
-    {
-      tmp_address -= 10;
-      row++;
-    }
-  mt_gotoXY (row + 1, col * 6 + 2);
-  if (value >> 14)
-    {
-      mt_print ("-");
-      value = (~value & 0x3FFF) + 1;
-    }
-  else
-    mt_print ("+");
-  mt_print ("%02X", value >> 7 & 0b1111111);
-  mt_print ("%02X", value & 0b1111111);
-  if (value >> 14 && (value & 0x3FFF) == 0)
-    {
-      mt_gotoXY (row + 1, col * 6 + 2);
-      mt_print ("-7F80");
-    }
+  mt_setbgcolor (bg);
+  int value;
+  sc_memoryGet (address, &value);
+  mt_gotoXY (row, col);
+  printDecodedCommand (value);
   mt_setdefaultcolor ();
+  bc_printA (" ");
 }

@@ -1,19 +1,32 @@
 #include "sc_variables.h"
-#include <stdio.h>
+#include <mySimpleComputer.h>
+
+/**
+ * @brief Store memory contents in a file.
+ *
+ * @param filename - output file name
+ *
+ * @retval 0 - success
+ * @retval -1 - invalid filename/IO error
+ */
 int
 sc_memorySave (char *filename)
 {
-  if (filename == NULL)
+  if (!filename)
     return -1;
-  FILE *file = fopen (filename, "wb");
-  if (file == NULL)
-    return -1;
-  if (fwrite (SC_MEMARR, sizeof (*SC_MEMARR), SC_MEMARR_SIZE, file)
-      != SC_MEMARR_SIZE)
+  char strbuf[512] = { 0 };
+  int i = 0;
+  while (filename[i] != '\n' && filename[i] != '\0')
     {
-      fclose (file);
-      return -1;
+      strbuf[i] = filename[i];
+      i++;
     }
-  fclose (file);
+  FILE *input = fopen (strbuf, "wb");
+  if (!input)
+    return -1;
+  int readcnt = fwrite (SC_MEMARR, sizeof (int), SC_MEMARR_SIZE, input);
+  fclose (input);
+  if (readcnt != SC_MEMARR_SIZE)
+    return -1;
   return 0;
 }

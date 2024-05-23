@@ -1,19 +1,33 @@
 #include "sc_variables.h"
+#include <mySimpleComputer.h>
+
+/**
+ * @brief Set a flag in flags register.
+ *
+ * @param register - flag to be set (macros start with SC_FLAG_)
+ * @param value - value to be set
+ *
+ * @retval 0 - success
+ * @retval -1 - invalid flag, flags remain unchanged
+ */
 int
-sc_regSet (int sc_register, int value)
+sc_regSet (int address, int value)
 {
-  if (sc_register != SC_THROTTLE && sc_register != SC_INVALID_COMMAND
-      && sc_register != SC_OUT_OF_MEMORY && sc_register != SC_DIVIDING_BY_ZERO
-      && sc_register != SC_OVERFLOW)
+  // Invalid flag
+  if (address >> 5)
     return -1;
-  switch (value)
+
+  if (value >> 15)
+    return -1;
+
+  if (value)
     {
-    case 1:
-      SC_FLAGS |= sc_register;
-      return 0;
-    case 0:
-      SC_FLAGS &= ~sc_register;
+      SC_REG_FLAGS = SC_REG_FLAGS | address;
       return 0;
     }
-  return -1;
+  else
+    {
+      SC_REG_FLAGS = SC_REG_FLAGS & (~address);
+      return 0;
+    }
 }

@@ -1,23 +1,19 @@
 #include <myBigChars.h>
-#include <myTerm.h>
 int
-bc_printbigchar (int *big, int x, int y, enum colors fg, enum colors bg)
+bc_printbigchar (int big[2], int x, int y, enum colors fg, enum colors bg)
 {
   if (!big)
     return -1;
-  mt_setfgcolor (fg);
+  // Evil pointer hack
+  __uint8_t *bigchar = (__uint8_t *)big;
   mt_setbgcolor (bg);
+  mt_setfgcolor (fg);
   for (int i = 0; i < 8; i++)
     {
       for (int j = 0; j < 8; j++)
         {
-          int value;
-          mt_gotoXY (x + i, y + j);
-          bc_getbigcharpos (big, i + 1, j + 1, &value);
-          if (value)
-            bc_printA ("a");
-          else
-            mt_print (" ");
+          mt_gotoXY (y + i, x + j);
+          (bigchar[i] >> j) & 1 ? bc_printA ("\x61") : bc_printA (" ");
         }
     }
   mt_setdefaultcolor ();

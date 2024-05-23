@@ -1,12 +1,13 @@
+#include <myTerm.h>
 #include <sys/ioctl.h>
-#include <unistd.h>
 int
 mt_getscreensize (int *rows, int *cols)
 {
-  struct winsize ws;
-  if (ioctl (STDOUT_FILENO, TIOCGWINSZ, &ws))
+  struct winsize w;
+  if (ioctl (0, TIOCGWINSZ, &w) || !rows || !cols)
     return -1;
-  *rows = ws.ws_row;
-  *cols = ws.ws_col;
+
+  *rows = w.ws_row;
+  *cols = w.ws_col;
   return 0;
 }
