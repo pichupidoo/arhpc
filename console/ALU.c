@@ -45,8 +45,8 @@ ALU (int command, int operand)
       if (!value)
         {
           prompt ("[АЛУ] Произошло деление на ноль!");
-          sc_regSet (SC_DIVIDING_BY_ZERO, 1);
-          sc_regSet (SC_INVALID_COMMAND, 1);
+          sc_regSet (SC_FLAG_ZERODIVISION, 1);
+          sc_regSet (SC_FLAG_IGNORECLK, 1);
           break;
         }
       sc_accumulatorSet (usb (msb (acc_value) / msb (value)));
@@ -68,8 +68,8 @@ ALU (int command, int operand)
 
     default:
       prompt ("[АЛУ] Неизвестная команда");
-      sc_regSet (SC_DIVIDING_BY_ZERO, 1);
-      sc_regSet (SC_INVALID_COMMAND, 1);
+      sc_regSet (SC_FLAG_ZERODIVISION, 1);
+      sc_regSet (SC_FLAG_IGNORECLK, 1);
       break;
     }
   return 0;

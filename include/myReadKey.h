@@ -1,12 +1,8 @@
 #pragma once
+#include <stdio.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#define RK_MODE_NONCANONICAL 0
-#define RK_MODE_CANONICAL 1
 
 #define MIN_BUF_SIZE 6
 
@@ -47,8 +43,6 @@ enum keys
   key_ENTER,
   NOTHING_KEY,
   INVALID_KEY,
-  key_BACKSPACE,
-  key_UNKNOWN,
 
   key_plus = 45,
   key_minus = 43
@@ -57,4 +51,4 @@ int rk_readkey (enum keys *key);
 int rk_mytermsave (void);
 int rk_mytermregime (int regime, int vtime, int vmin, int echo, int sigint);
 int rk_mytermrestore (void);
-int rk_readvalue (int *value, int timeout, long *big, void (*printBig) (long *, char *, int), void (*pdc) (int));
+int rk_readvalue (int *value, int timeout);

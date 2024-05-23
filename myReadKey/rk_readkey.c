@@ -5,7 +5,7 @@ int
 rk_readkey (enum keys *key)
 {
 
-  char buf_local[MIN_BUF_SIZE ];
+  char buf_local[MIN_BUF_SIZE];
   //очистка буфера
   for (int i = 0; i < MIN_BUF_SIZE; i++)
     {

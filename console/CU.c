@@ -13,8 +13,8 @@ CU (void)
   if (sc_icounterGet (&address) || sc_cacheGet (address, &value)
       || sc_commandDecode (value, &sign, &code, &operand) || sign)
     {
-      sc_regSet (SC_THROTTLE, 1);
-      sc_regSet (SC_INVALID_COMMAND, 1);
+      sc_regSet (SC_FLAG_BADOP, 1);
+      sc_regSet (SC_FLAG_IGNORECLK, 1);
       prompt ("[УУ] Произошла ошибка при декодировании команды.");
       printCounters ();
       return;
@@ -25,7 +25,7 @@ CU (void)
     case 0x00:
       break;
     case 0x01:
-      prompt ("Дмитрюк Вячеслав Вячеславович, ИС-241");
+      prompt ("Жур Андрей Александрович, ИС-241");
       break;
     case 0x0A:
       temp_value = inputTerm (operand);
@@ -81,7 +81,7 @@ CU (void)
       break;
     case 0x2b:
       prompt ("[УУ] Программа завершила работу.");
-      sc_regSet (SC_INVALID_COMMAND, 1);
+      sc_regSet (SC_FLAG_IGNORECLK, 1);
       break;
     case 0x37: // jns
       sc_accumulatorGet (&acc_value);
@@ -91,8 +91,8 @@ CU (void)
       return;
       break;
     default:
-      sc_regSet (SC_THROTTLE, 1);
-      sc_regSet (SC_INVALID_COMMAND, 1);
+      sc_regSet (SC_FLAG_BADOP, 1);
+      sc_regSet (SC_FLAG_IGNORECLK, 1);
       prompt ("[УУ] Неизвестная команда.");
       return;
     }

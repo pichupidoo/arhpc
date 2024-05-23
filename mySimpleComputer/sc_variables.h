@@ -12,7 +12,6 @@ extern int SC_ICOUNTER;
 extern unsigned char SC_TCOUNTER;
 extern int SC_FLAGS;
 extern int SC_IGNORE_CACHE;
-extern int SC_REG_DELAY; 
 typedef struct sc_cache_line
 {
   int address;

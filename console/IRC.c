@@ -11,7 +11,7 @@ IRC (int signum)
       printFlags ();
       printCounters ();
       sc_delayGet (&delay_value);
-      if (sc_regGet (SC_INVALID_COMMAND, &value) || value)
+      if (sc_regGet (SC_FLAG_IGNORECLK, &value) || value)
         {
           alarm (0);
           return;
