@@ -13,16 +13,14 @@ echo ""
 
 # Вывод информации об оперативной памяти
 echo "===== Memory Information ====="
-free -h                                     #Опция -h Она выводит объём памяти в удобных для чтения единицах измерения: килобайтах (K), мегабайтах (M), гигабайтах (G),
+free -h                                                    #Опция -h Она выводит объём памяти в удобных для чтения единицах измерения: килобайтах (K), мегабайтах (M), гигабайтах (G),
 echo ""
 
 # Вывод информации о сетевых интерфейсах и скорости соединения
 echo "===== Network Interface Information ====="
 ip -o addr show | awk '/inet / {print "Interface: " $2 " IP: " $4}'
-ip link show | grep "link/ether" | awk '{print "Interface: " $2 " MAC: " $2}'
-DEFAULT_INTERFACE=$(ip route show to default | awk '{print $5}')  #route show to default — выводит маршрут по умолчанию, то есть информацию о сетевом интерфейсе,
-                                                                  #который используется для доступа в интернет или к внешним сетям.
-                                                                  #Маршрут по умолчанию указывает, через какой интерфейс передаётся трафик, если не указаны другие маршруты.
+ip -o link show | awk '{print "Interface: " $2 " MAC: " $17}' #выводит информацию об интерфейсах в формате одной строки для каждого интерфейса.       /link\/ether/: фильтрует строки, содержащие MAC-адрес (по шаблону link/ether).
+DEFAULT_INTERFACE=$(ip route show to default | awk '{print $5}')
 ethtool $DEFAULT_INTERFACE | grep "Speed"
 echo ""
 
